@@ -1,8 +1,6 @@
 #!/usr/bin/env ruby
 
-require 'action_dispatch'
-
-include ActionDispatch::TestProcess
+require 'tempfile'
 
 FN = '/tmp/test.png'
 
@@ -30,9 +28,17 @@ end
 test 'File.open, mounted' do
   File.open('/mnt/example.png')
 end
-test 'fixture_file_upload, local' do
-  fixture_file_upload('./example.png')
+
+test 'Tempfile.new + copy_file preserve=false, mounted' do
+  tf = Tempfile.new(['example', '.png'])
+  tf.set_encoding(Encoding::BINARY)
+  FileUtils.copy_file('/mnt/example.png', tf.path)
+  tf
 end
-test 'fixture_file_upload, mounted' do
-  fixture_file_upload('/mnt/example.png')
+
+test 'Tempfile.new + copy_file preserve=true, mounted' do
+  tf = Tempfile.new(['example', '.png'])
+  tf.set_encoding(Encoding::BINARY)
+  FileUtils.copy_file('/mnt/example.png', tf.path, true)
+  tf
 end
